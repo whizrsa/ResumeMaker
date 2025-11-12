@@ -1,0 +1,78 @@
+@model ResumeMaker.Models.Project
+
+@{
+    ViewData["Title"] = "Add Project";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Add Project</h2>
+        <a asp-controller="Home" asp-action="Edit" asp-route-resumeId="@Model.ResumeId" class="btn btn-secondary">
+            Back to Resume
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-controller="Projects" asp-action="Create" method="post">
+                <input type="hidden" asp-for="ResumeId" />
+                
+                <div class="form-group">
+                    <label asp-for="ProjectName">Project Name</label>
+                    <input asp-for="ProjectName" class="form-control" placeholder="e.g., E-Commerce Platform" required/>
+                    <span asp-validation-for="ProjectName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Description">Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="4" 
+                              placeholder="Describe the project, your role, and key achievements..." required></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Technologies">Technologies Used</label>
+                    <input asp-for="Technologies" class="form-control" 
+                           placeholder="e.g., React, Node.js, MongoDB, AWS"/>
+                    <span asp-validation-for="Technologies" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ProjectUrl">Project URL (Optional)</label>
+                    <input asp-for="ProjectUrl" class="form-control" type="url" 
+                           placeholder="https://github.com/username/project"/>
+                    <span asp-validation-for="ProjectUrl" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="StartDate">Start Date (Optional)</label>
+                            <input asp-for="StartDate" type="date" class="form-control"/>
+                            <span asp-validation-for="StartDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="EndDate">End Date (Optional)</label>
+                            <input asp-for="EndDate" type="date" class="form-control"/>
+                            <small class="form-text text-muted">Leave blank if ongoing</small>
+                            <span asp-validation-for="EndDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-controller="Home" asp-action="Edit" asp-route-resumeId="@Model.ResumeId" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-success">Save Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

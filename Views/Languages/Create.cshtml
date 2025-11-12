@@ -1,0 +1,53 @@
+@model ResumeMaker.Models.Language
+
+@{
+    ViewData["Title"] = "Add Language";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Add Language</h2>
+        <a asp-controller="Home" asp-action="Edit" asp-route-resumeId="@Model.ResumeId" class="btn btn-secondary">
+            Back to Resume
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-controller="Languages" asp-action="Create" method="post">
+                <input type="hidden" asp-for="ResumeId" />
+                
+                <div class="form-group">
+                    <label asp-for="LanguageName">Language Name</label>
+                    <input asp-for="LanguageName" class="form-control" 
+                           placeholder="e.g., English, Spanish, French" required/>
+                    <span asp-validation-for="LanguageName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ProficiencyLevel">Proficiency Level</label>
+                    <select asp-for="ProficiencyLevel" class="form-control" required>
+                        <option value="">Select proficiency level...</option>
+                        <option value="Native">Native</option>
+                        <option value="Fluent">Fluent</option>
+                        <option value="Advanced">Advanced</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Basic">Basic</option>
+                    </select>
+                    <span asp-validation-for="ProficiencyLevel" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-controller="Home" asp-action="Edit" asp-route-resumeId="@Model.ResumeId" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-success">Save Language</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

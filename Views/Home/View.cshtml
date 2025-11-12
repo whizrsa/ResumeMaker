@@ -1,0 +1,224 @@
+@model ResumeMaker.Models.Resume
+
+@{
+    ViewData["Title"] = $"{Model.FullName} - Resume";
+    var theme = (string)(ViewBag.Theme ?? "minimal");
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+        <h2 class="mb-0">Resume Preview</h2>
+        <div class="d-flex align-items-center gap-3">
+            <div class="btn-group" role="group" aria-label="Select resume theme">
+                <a class="btn btn-secondary @(theme=="minimal"?"active":"")" asp-action="View" asp-route-id="@Model.Id" asp-route-theme="minimal">Minimal</a>
+                <a class="btn btn-secondary @(theme=="classic"?"active":"")" asp-action="View" asp-route-id="@Model.Id" asp-route-theme="classic">Classic</a>
+                <a class="btn btn-secondary @(theme=="modern"?"active":"")" asp-action="View" asp-route-id="@Model.Id" asp-route-theme="modern">Modern</a>
+            </div>
+            <button onclick="window.print()" class="btn btn-success">Print / Save as PDF</button>
+            <a asp-action="Edit" asp-route-resumeId="@Model.Id" class="btn btn-primary">Edit</a>
+            <a asp-action="Index" class="btn btn-cancel">Back to List</a>
+        </div>
+    </div>
+
+    <!-- Resume Preview -->
+    <main class="resume-preview theme-@theme" itemscope itemtype="https://schema.org/Person">
+        <!-- Header -->
+        <header class="resume-header">
+            <h1 itemprop="name">@Model.FullName</h1>
+            <div class="resume-contact">
+                <span itemprop="email"><i class="bi bi-envelope me-1"></i>@Model.Email</span>
+                <span itemprop="telephone"><i class="bi bi-telephone me-1"></i>@Model.CellPhoneNumber</span>
+                <span itemprop="address"><i class="bi bi-geo-alt me-1"></i>@Model.Address</span>
+            </div>
+        </header>
+
+        <!-- Professional Summary -->
+        @if (!string.IsNullOrEmpty(Model.Summary))
+        {
+            <section class="resume-section" aria-label="Professional Summary">
+                <h2>Professional Summary</h2>
+                <p itemprop="description">@Model.Summary</p>
+            </section>
+        }
+
+        <!-- Work Experience -->
+        @if (Model.Experiences != null && Model.Experiences.Any())
+        {
+            <section class="resume-section" aria-label="Work Experience">
+                <h2>Work Experience</h2>
+                <ul class="resume-list">
+                @foreach (var experience in Model.Experiences.OrderByDescending(e => e.StartDate))
+                {
+                    <li class="resume-item" itemscope itemtype="https://schema.org/JobPosting">
+                        <div class="resume-item-header">
+                            <div>
+                                <span class="resume-item-title" itemprop="title">@experience.JobTitle</span>
+                                <span class="resume-item-subtitle" itemprop="hiringOrganization">@experience.Company</span>
+                                <span class="resume-item-location" itemprop="jobLocation">@experience.Location</span>
+                            </div>
+                            <span class="resume-item-date">
+                                <time itemprop="datePosted" datetime="@experience.StartDate.ToString("yyyy-MM-dd")">@experience.StartDate.ToString("MMM yyyy")</time>
+                                -
+                                <time itemprop="validThrough" datetime="@(experience.EndDate?.ToString("yyyy-MM-dd") ?? "")">@(experience.EndDate?.ToString("MMM yyyy") ?? "Present")</time>
+                            </span>
+                        </div>
+                        <p itemprop="description">@experience.Description</p>
+                    </li>
+                }
+                </ul>
+            </section>
+        }
+
+        <!-- Projects -->
+        @if (Model.Projects != null && Model.Projects.Any())
+        {
+            <section class="resume-section" aria-label="Projects">
+                <h2>Projects</h2>
+                <ul class="resume-list">
+                @foreach (var project in Model.Projects.OrderByDescending(p => p.StartDate))
+                {
+                    <li class="resume-item" itemscope itemtype="https://schema.org/CreativeWork">
+                        <div class="resume-item-header">
+                            <span class="resume-item-title" itemprop="name">@project.ProjectName</span>
+                            @if (!string.IsNullOrEmpty(project.Technologies))
+                            {
+                                <span class="resume-item-subtitle">Technologies: @project.Technologies</span>
+                            }
+                            @if (project.StartDate.HasValue)
+                            {
+                                <span class="resume-item-date">
+                                    <time itemprop="dateCreated" datetime="@project.StartDate.Value.ToString("yyyy-MM-dd")">@project.StartDate.Value.ToString("MMM yyyy")</time>
+                                    -
+                                    <time itemprop="dateModified" datetime="@(project.EndDate?.ToString("yyyy-MM-dd") ?? "")">@(project.EndDate?.ToString("MMM yyyy") ?? "Ongoing")</time>
+                                </span>
+                            }
+                        </div>
+                        <p itemprop="description">@project.Description</p>
+                        @if (!string.IsNullOrEmpty(project.ProjectUrl))
+                        {
+                            <p><strong>Project URL:</strong> <a href="@project.ProjectUrl" target="_blank" itemprop="url">@project.ProjectUrl</a></p>
+                        }
+                    </li>
+                }
+                </ul>
+            </section>
+        }
+
+        <!-- Education -->
+        @if (Model.EducationHistory != null && Model.EducationHistory.Any())
+        {
+            <section class="resume-section" aria-label="Education">
+                <h2>Education</h2>
+                <ul class="resume-list">
+                @foreach (var education in Model.EducationHistory.OrderByDescending(e => e.EndDate))
+                {
+                    <li class="resume-item" itemscope itemtype="https://schema.org/EducationalOrganization">
+                        <div class="resume-item-header">
+                            <span class="resume-item-title" itemprop="degree">@education.Degree</span>
+                            <span class="resume-item-subtitle" itemprop="name">@education.Institution</span>
+                            <span class="resume-item-date">
+                                <time itemprop="startDate" datetime="@education.StartDate.ToString("yyyy-MM-dd")">@education.StartDate.ToString("MMM yyyy")</time>
+                                -
+                                <time itemprop="endDate" datetime="@education.EndDate.ToString("yyyy-MM-dd")">@education.EndDate.ToString("MMM yyyy")</time>
+                            </span>
+                        </div>
+                    </li>
+                }
+                </ul>
+            </section>
+        }
+
+        <!-- Certifications -->
+        @if (Model.Certifications != null && Model.Certifications.Any())
+        {
+            <section class="resume-section" aria-label="Certifications">
+                <h2>Certifications</h2>
+                <ul class="resume-list">
+                @foreach (var certification in Model.Certifications.OrderByDescending(c => c.DateAcquired))
+                {
+                    <li class="resume-item">
+                        <div class="resume-item-header">
+                            <span class="resume-item-title">@certification.CertificationName</span>
+                            <span class="resume-item-date">
+                                <time datetime="@certification.DateAcquired.ToString("yyyy-MM-dd")">@certification.DateAcquired.ToString("MMM yyyy")</time>
+                            </span>
+                        </div>
+                    </li>
+                }
+                </ul>
+            </section>
+        }
+
+        <!-- Languages -->
+        @if (Model.Languages != null && Model.Languages.Any())
+        {
+            <section class="resume-section" aria-label="Languages">
+                <h2>Languages</h2>
+                <ul class="resume-list">
+                @foreach (var language in Model.Languages)
+                {
+                    <li class="resume-item">
+                        <span class="resume-item-title">@language.LanguageName</span>
+                        <span class="text-muted">@language.ProficiencyLevel</span>
+                    </li>
+                }
+                </ul>
+            </section>
+        }
+
+        <!-- Skills -->
+        @if (Model.Skills != null && Model.Skills.Any())
+        {
+            <section class="resume-section" aria-label="Skills">
+                <h2>Skills</h2>
+                <ul class="resume-list resume-skills">
+                @foreach (var skill in Model.Skills)
+                {
+                    <li class="skill-tag">@skill</li>
+                }
+                </ul>
+            </section>
+        }
+    </main>
+</div>
+
+<style>
+    .resume-list { list-style: none; margin: 0; padding: 0; }
+    .resume-list > li { margin-bottom: 2rem; page-break-inside: avoid; }
+    .resume-skills { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .skill-tag { border-radius: 9999px; padding: .35rem .75rem; font-weight:600; }
+
+    /* Theme base */
+    .resume-preview { background: #fff; padding: 2rem; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,.06); }
+    .resume-header { border-bottom: 1px solid #e5e7eb; margin-bottom: 1rem; padding-bottom: .5rem; }
+    .resume-header h1 { margin: 0 0 .5rem 0; font-weight: 800; }
+    .resume-contact { display: flex; flex-wrap: wrap; gap: 1rem; color: #6b7280; }
+    .resume-item-header { display:flex; justify-content: space-between; gap: 1rem; }
+
+    /* Minimal theme */
+    .theme-minimal .resume-section h2 { font-size: 1.1rem; font-weight: 800; color: #111827; text-transform: uppercase; letter-spacing: .06em; }
+    .theme-minimal .resume-item-title { font-weight: 700; color: #111827; }
+    .theme-minimal .resume-item-subtitle, .theme-minimal .resume-item-date { color: #6b7280; }
+    .theme-minimal .skill-tag { background: #f3f4f6; color: #111827; }
+
+    /* Classic theme */
+    .theme-classic .resume-section h2 { font-size: 1.25rem; font-weight: 800; color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: .25rem; }
+    .theme-classic .resume-item-title { font-weight: 800; color: #111827; }
+    .theme-classic .resume-item-subtitle, .theme-classic .resume-item-date { color: #374151; font-style: italic; }
+    .theme-classic .skill-tag { background: #e5e7eb; color: #111827; }
+
+    /* Modern theme */
+    .theme-modern .resume-section h2 { font-size: 1.25rem; font-weight: 800; color: #4f46e5; }
+    .theme-modern .resume-item-title { font-weight: 800; color: #111827; }
+    .theme-modern .resume-item-subtitle, .theme-modern .resume-item-date { color: #6b7280; }
+    .theme-modern .skill-tag { background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; }
+
+    @media print {
+        .no-print { display: none !important; }
+        body { background: white !important; }
+        .resume-preview { box-shadow: none !important; margin: 0 !important; padding: 0 !important; }
+        .container { max-width: 100% !important; padding: 0 !important; }
+        .body-section { padding: 0 !important; }
+        header, footer { display: none !important; }
+    }
+</style>

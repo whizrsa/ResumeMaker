@@ -1,0 +1,47 @@
+﻿@model ResumeMaker.Models.Certification
+
+@{
+    ViewData["Title"] = "Add Certification";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Add Certification</h2>
+        <a asp-controller="Home" asp-action="Edit" asp-route-resumeId="@Model.ResumeId" class="btn btn-secondary">
+            Back to Resume
+        </a>
+    </div>
+
+    <div class="card" style="border-radius: 10px; border: 2px solid #e0e0e0;">
+        <div class="card-body">
+            <form asp-controller="Certifications" asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="ResumeId" />
+                
+                <div class="form-group">
+                    <label asp-for="CertificationName">Certification Name</label>
+                    <input asp-for="CertificationName" class="form-control" 
+                           placeholder="e.g., AWS Certified Solutions Architect" required/>
+                    <span asp-validation-for="CertificationName" class="text-danger"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="DateAcquired">Date Acquired</label>
+                    <input asp-for="DateAcquired" class="form-control" type="date" required/>
+                    <span asp-validation-for="DateAcquired" class="text-danger"></span>
+                </div>
+                
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-controller="Home" asp-action="Edit" asp-route-resumeId="@Model.ResumeId" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-success">Save Certification</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

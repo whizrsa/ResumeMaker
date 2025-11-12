@@ -1,0 +1,582 @@
+﻿@model ResumeMaker.Models.Resume
+
+@{
+    ViewData["Title"] = "Create Resume";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Create Complete Resume</h2>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            <strong>Please fix the following issues:</strong>
+            <ul class="mb-0">
+                @foreach (var err in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@err.ErrorMessage</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <form asp-controller="Home" asp-action="Create" method="post" id="resumeForm">
+        @Html.AntiForgeryToken()
+        
+        <!-- Personal Information Card -->
+        <div class="card">
+            <div class="card-header">
+                <h4><span class="section-icon">👤</span> Personal Information *</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="FullName">Full Name *</label>
+                            <input asp-for="FullName" class="form-control" placeholder="John Doe" required/>
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Email">Email Address *</label>
+                            <input asp-for="Email" class="form-control" type="email" placeholder="john.doe@example.com" required/>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="CellPhoneNumber">Phone Number *</label>
+                            <input asp-for="CellPhoneNumber" class="form-control" placeholder="+1 (555) 123-4567" required/>
+                            <span asp-validation-for="CellPhoneNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Address">Address *</label>
+                            <input asp-for="Address" class="form-control" placeholder="City, State, Country" required/>
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Summary">Professional Summary *</label>
+                    <textarea asp-for="Summary" class="form-control" rows="4" 
+                              placeholder="Brief professional summary highlighting your experience and expertise..." required></textarea>
+                    <span asp-validation-for="Summary" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Work Experience Section -->
+        <div class="card">
+            <div class="card-header">
+                <h4><span class="section-icon">💼</span> Work Experience * (At least one required)</h4>
+            </div>
+            <div class="card-body">
+                <div id="experienceSection">
+                    @for (var i = 0; i < (Model.Experiences?.Count > 0 ? Model.Experiences.Count : 1); i++)
+                    {
+                        var exp = Model.Experiences != null && Model.Experiences.Count > i ? Model.Experiences[i] : new ResumeMaker.Models.Experience();
+                        <div class="experience-item border rounded p-3 mb-3" data-index="@i">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5>Experience #@(@i + 1)</h5>
+                                @if (i > 0)
+                                {
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">Remove</button>
+                                }
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Job Title *</label>
+                                        <input type="text" name="experiences[@i].JobTitle" value="@exp.JobTitle" class="form-control" required/>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Company *</label>
+                                        <input type="text" name="experiences[@i].Company" value="@exp.Company" class="form-control" required/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Location *</label>
+                                        <input type="text" name="experiences[@i].Location" value="@exp.Location" class="form-control" required/>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Start Date *</label>
+                                        <input type="date" name="experiences[@i].StartDate" value="@((exp.StartDate==default?DateTime.Today:exp.StartDate).ToString("yyyy-MM-dd"))" class="form-control" required/>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>End Date</label>
+                                        <input type="date" name="experiences[@i].EndDate" value="@((exp.EndDate?.ToString("yyyy-MM-dd")) ?? "")" class="form-control"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Description *</label>
+                                <textarea name="experiences[@i].Description" class="form-control" rows="3" required>@exp.Description</textarea>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <button type="button" class="btn btn-success" onclick="addExperience()">+ Add Another Experience</button>
+            </div>
+        </div>
+
+        <!-- Education Section -->
+        <div class="card">
+            <div class="card-header">
+                <h4><span class="section-icon">🎓</span> Education * (At least one required)</h4>
+            </div>
+            <div class="card-body">
+                <div id="educationSection">
+                    @for (var i = 0; i < (Model.EducationHistory?.Count > 0 ? Model.EducationHistory.Count : 1); i++)
+                    {
+                        var edu = Model.EducationHistory != null && Model.EducationHistory.Count > i ? Model.EducationHistory[i] : new ResumeMaker.Models.Education();
+                        <div class="education-item border rounded p-3 mb-3" data-index="@i">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5>Education #@(@i + 1)</h5>
+                                @if (i > 0)
+                                {
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">Remove</button>
+                                }
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Institution *</label>
+                                        <input type="text" name="educationHistory[@i].Institution" value="@edu.Institution" class="form-control" required/>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Degree *</label>
+                                        <input type="text" name="educationHistory[@i].Degree" value="@edu.Degree" class="form-control" required/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Start Date *</label>
+                                        <input type="date" name="educationHistory[@i].StartDate" value="@((edu.StartDate==default?DateTime.Today:edu.StartDate).ToString("yyyy-MM-dd"))" class="form-control" required/>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>End Date *</label>
+                                        <input type="date" name="educationHistory[@i].EndDate" value="@((edu.EndDate==default?DateTime.Today:edu.EndDate).ToString("yyyy-MM-dd"))" class="form-control" required/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <button type="button" class="btn btn-success" onclick="addEducation()">+ Add Another Education</button>
+            </div>
+        </div>
+
+        <!-- Skills Section -->
+        <div class="card">
+            <div class="card-header">
+                <h4><span class="section-icon">⚡</span> Skills * (Required)</h4>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Skills (comma-separated) *</label>
+                    <input name="skillsInput" class="form-control" 
+                           value="@(Model.Skills != null && Model.Skills.Any() ? string.Join(", ", Model.Skills) : "")"
+                           placeholder="C#, ASP.NET Core, SQL, JavaScript, React, etc." required/>
+                    <small class="form-text text-muted">Separate each skill with a comma (minimum 3 skills)</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Projects Section (Optional) -->
+        <div class="card">
+            <div class="card-header">
+                <h4><span class="section-icon">🚀</span> Projects (Optional)</h4>
+            </div>
+            <div class="card-body">
+                <div id="projectsSection">
+                    @for (var i = 0; i < (Model.Projects?.Count ?? 0); i++)
+                    {
+                        var prj = Model.Projects[i];
+                        <div class="project-item border rounded p-3 mb-3" data-index="@i">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5>Project #@(@i + 1)</h5>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">Remove</button>
+                            </div>
+                            <div class="form-group">
+                                <label>Project Name *</label>
+                                <input type="text" name="projects[@i].ProjectName" value="@prj.ProjectName" class="form-control" required/>
+                            </div>
+                            <div class="form-group">
+                                <label>Description *</label>
+                                <textarea name="projects[@i].Description" class="form-control" rows="3" required>@prj.Description</textarea>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Technologies Used</label>
+                                        <input type="text" name="projects[@i].Technologies" value="@prj.Technologies" class="form-control"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Project URL</label>
+                                        <input type="url" name="projects[@i].ProjectUrl" value="@prj.ProjectUrl" class="form-control"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Start Date</label>
+                                        <input type="date" name="projects[@i].StartDate" value="@((prj.StartDate?.ToString("yyyy-MM-dd")) ?? "")" class="form-control"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>End Date</label>
+                                        <input type="date" name="projects[@i].EndDate" value="@((prj.EndDate?.ToString("yyyy-MM-dd")) ?? "")" class="form-control"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <button type="button" class="btn btn-success" onclick="addProject()">+ Add Project</button>
+            </div>
+        </div>
+
+        <!-- Certifications Section (Optional) -->
+        <div class="card">
+            <div class="card-header">
+                <h4><span class="section-icon">🏆</span> Certifications (Optional)</h4>
+            </div>
+            <div class="card-body">
+                <div id="certificationsSection">
+                    @for (var i = 0; i < (Model.Certifications?.Count ?? 0); i++)
+                    {
+                        var c = Model.Certifications[i];
+                        <div class="certification-item border rounded p-3 mb-3" data-index="@i">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5>Certification #@(@i + 1)</h5>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">Remove</button>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label>Certification Name *</label>
+                                        <input type="text" name="certifications[@i].CertificationName" value="@c.CertificationName" class="form-control" required/>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Date Acquired *</label>
+                                        <input type="date" name="certifications[@i].DateAcquired" value="@c.DateAcquired.ToString("yyyy-MM-dd")" class="form-control" required/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <button type="button" class="btn btn-success" onclick="addCertification()">+ Add Certification</button>
+            </div>
+        </div>
+
+        <!-- Languages Section (Optional) -->
+        <div class="card">
+            <div class="card-header">
+                <h4><span class="section-icon">🌍</span> Languages (Optional)</h4>
+            </div>
+            <div class="card-body">
+                <div id="languagesSection">
+                    @for (var i = 0; i < (Model.Languages?.Count ?? 0); i++)
+                    {
+                        var l = Model.Languages[i];
+                        <div class="language-item border rounded p-3 mb-3" data-index="@i">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5>Language #@(@i + 1)</h5>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">Remove</button>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Language Name *</label>
+                                        <input type="text" name="languages[@i].LanguageName" value="@l.LanguageName" class="form-control" required/>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Proficiency Level *</label>
+                                        <select name="languages[@i].ProficiencyLevel" class="form-control" required data-value="@l.ProficiencyLevel">
+                                            <option value="">Select level...</option>
+                                            <option value="Native">Native</option>
+                                            <option value="Fluent">Fluent</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Basic">Basic</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <button type="button" class="btn btn-success" onclick="addLanguage()">+ Add Language</button>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mb-4">
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary btn-lg">Create Complete Resume</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        let experienceCount = @(Model.Experiences?.Count > 0 ? Model.Experiences.Count : 1);
+        let educationCount = @(Model.EducationHistory?.Count > 0 ? Model.EducationHistory.Count : 1);
+        let projectCount = @(Model.Projects?.Count ?? 0);
+        let certificationCount = @(Model.Certifications?.Count ?? 0);
+        let languageCount = @(Model.Languages?.Count ?? 0);
+
+        function addExperience() {
+            const i = experienceCount++;
+            const html = `
+                <div class="experience-item border rounded p-3 mb-3" data-index="${i}">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5>Experience #${i + 1}</h5>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">Remove</button>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Job Title *</label>
+                                <input type="text" name="experiences[${i}].JobTitle" class="form-control" required/>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Company *</label>
+                                <input type="text" name="experiences[${i}].Company" class="form-control" required/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Location *</label>
+                                <input type="text" name="experiences[${i}].Location" class="form-control" required/>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Start Date *</label>
+                                <input type="date" name="experiences[${i}].StartDate" class="form-control" required/>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>End Date</label>
+                                <input type="date" name="experiences[${i}].EndDate" class="form-control"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description *</label>
+                        <textarea name="experiences[${i}].Description" class="form-control" rows="3" required></textarea>
+                    </div>
+                </div>`;
+            document.getElementById('experienceSection').insertAdjacentHTML('beforeend', html);
+        }
+
+        function addEducation() {
+            const i = educationCount++;
+            const html = `
+                <div class="education-item border rounded p-3 mb-3" data-index="${i}">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5>Education #${i + 1}</h5>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">Remove</button>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Institution *</label>
+                                <input type="text" name="educationHistory[${i}].Institution" class="form-control" required/>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Degree *</label>
+                                <input type="text" name="educationHistory[${i}].Degree" class="form-control" required/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Start Date *</label>
+                                <input type="date" name="educationHistory[${i}].StartDate" class="form-control" required/>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>End Date *</label>
+                                <input type="date" name="educationHistory[${i}].EndDate" class="form-control" required/>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            document.getElementById('educationSection').insertAdjacentHTML('beforeend', html);
+        }
+
+        function addProject() {
+            const i = projectCount++;
+            const html = `
+                <div class="project-item border rounded p-3 mb-3" data-index="${i}">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5>Project #${i + 1}</h5>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">Remove</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Project Name *</label>
+                        <input type="text" name="projects[${i}].ProjectName" class="form-control" required/>
+                    </div>
+                    <div class="form-group">
+                        <label>Description *</label>
+                        <textarea name="projects[${i}].Description" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Technologies Used</label>
+                                <input type="text" name="projects[${i}].Technologies" class="form-control"/>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Project URL</label>
+                                <input type="url" name="projects[${i}].ProjectUrl" class="form-control"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Start Date</label>
+                                <input type="date" name="projects[${i}].StartDate" class="form-control"/>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>End Date</label>
+                                <input type="date" name="projects[${i}].EndDate" class="form-control"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            document.getElementById('projectsSection').insertAdjacentHTML('beforeend', html);
+        }
+
+        function addCertification() {
+            const i = certificationCount++;
+            const html = `
+                <div class="certification-item border rounded p-3 mb-3" data-index="${i}">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5>Certification #${i + 1}</h5>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">Remove</button>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>Certification Name *</label>
+                                <input type="text" name="certifications[${i}].CertificationName" class="form-control" required/>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Date Acquired *</label>
+                                <input type="date" name="certifications[${i}].DateAcquired" class="form-control" required/>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            document.getElementById('certificationsSection').insertAdjacentHTML('beforeend', html);
+        }
+
+        function addLanguage() {
+            const i = languageCount++;
+            const html = `
+                <div class="language-item border rounded p-3 mb-3" data-index="${i}">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5>Language #${i + 1}</h5>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">Remove</button>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Language Name *</label>
+                                <input type="text" name="languages[${i}].LanguageName" class="form-control" required/>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Proficiency Level *</label>
+                                <select name="languages[${i}].ProficiencyLevel" class="form-control" required>
+                                    <option value="">Select level...</option>
+                                    <option value="Native">Native</option>
+                                    <option value="Fluent">Fluent</option>
+                                    <option value="Advanced">Advanced</option>
+                                    <option value="Intermediate">Intermediate</option>
+                                    <option value="Basic">Basic</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            document.getElementById('languagesSection').insertAdjacentHTML('beforeend', html);
+        }
+
+        function removeItem(button) {
+            button.closest('[data-index]').remove();
+        }
+
+        // Restore selected values for language selects on initial render (no Razor in option attributes)
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('select[data-value]').forEach(function(sel){
+                const val = sel.getAttribute('data-value');
+                if (val) sel.value = val;
+            });
+        });
+
+        document.getElementById('resumeForm').addEventListener('submit', function(e) {
+            const skills = document.querySelector('[name="skillsInput"]').value.trim();
+            if (skills) {
+                const skillsArray = skills.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                if (skillsArray.length < 3) {
+                    e.preventDefault();
+                    alert('Please enter at least 3 skills separated by commas.');
+                }
+            }
+        });
+    </script>
+}

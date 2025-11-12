@@ -1,0 +1,264 @@
+@model ResumeMaker.Models.Resume
+
+@{
+    ViewData["Title"] = "Edit Resume";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Edit Resume</h2>
+        <div class="gap-2 d-flex">
+            <a asp-action="View" asp-route-id="@Model.Id" class="btn btn-info">Preview</a>
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+
+    <form asp-controller="Home" asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+        
+        <!-- Personal Information Card -->
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="bi bi-person-badge section-icon"></i> Personal Information</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="FullName">Full Name</label>
+                            <input asp-for="FullName" class="form-control" placeholder="John Doe" required/>
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Email">Email Address</label>
+                            <input asp-for="Email" class="form-control" placeholder="john.doe@example.com" required/>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="CellPhoneNumber">Phone Number</label>
+                            <input asp-for="CellPhoneNumber" class="form-control" placeholder="+1 (555) 123-4567" required/>
+                            <span asp-validation-for="CellPhoneNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Address">Address</label>
+                            <input asp-for="Address" class="form-control" placeholder="City, State, Country" required/>
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Summary">Professional Summary</label>
+                    <textarea asp-for="Summary" class="form-control" rows="4" 
+                              placeholder="A brief professional summary highlighting your experience and expertise..." required></textarea>
+                    <span asp-validation-for="Summary" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Work Experience Card -->
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="bi bi-briefcase section-icon"></i> Work Experience</h4>
+            </div>
+            <div class="card-body">
+                @if (Model.Experiences != null && Model.Experiences.Any())
+                {
+                    <div class="list-group mb-3">
+                        @foreach (var experience in Model.Experiences.OrderByDescending(e => e.StartDate))
+                        {
+                            <div class="list-group-item">
+                                <h5 class="mb-1" style="color: var(--primary-dark); font-weight: 700;">@experience.JobTitle</h5>
+                                <p class="mb-1"><strong>@experience.Company</strong> &middot; @experience.Location</p>
+                                <small class="text-muted">
+                                    @experience.StartDate.ToString("MMM yyyy") - @(experience.EndDate?.ToString("MMM yyyy") ?? "Present")
+                                </small>
+                                <p class="mb-0 mt-2">@experience.Description</p>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No work experience added yet.</p>
+                }
+                <a asp-controller="Experience" asp-action="Create" asp-route-resumeId="@Model.Id" class="btn btn-success">
+                    Add Work Experience
+                </a>
+            </div>
+        </div>
+
+        <!-- Education Card -->
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="bi bi-mortarboard section-icon"></i> Education</h4>
+            </div>
+            <div class="card-body">
+                @if (Model.EducationHistory != null && Model.EducationHistory.Any())
+                {
+                    <div class="list-group mb-3">
+                        @foreach (var education in Model.EducationHistory.OrderByDescending(e => e.EndDate))
+                        {
+                            <div class="list-group-item">
+                                <h5 class="mb-1" style="color: var(--primary-dark); font-weight: 700;">@education.Degree</h5>
+                                <p class="mb-1"><strong>@education.Institution</strong></p>
+                                <small class="text-muted">
+                                    @education.StartDate.ToString("MMM yyyy") - @education.EndDate.ToString("MMM yyyy")
+                                </small>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No education history added yet.</p>
+                }
+                <a asp-controller="Education" asp-action="Create" asp-route-resumeId="@Model.Id" class="btn btn-success">
+                    Add Education
+                </a>
+            </div>
+        </div>
+
+        <!-- Projects Card -->
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="bi bi-kanban section-icon"></i> Projects</h4>
+            </div>
+            <div class="card-body">
+                @if (Model.Projects != null && Model.Projects.Any())
+                {
+                    <div class="list-group mb-3">
+                        @foreach (var project in Model.Projects.OrderByDescending(p => p.StartDate))
+                        {
+                            <div class="list-group-item">
+                                <h5 class="mb-1" style="color: var(--primary-dark); font-weight: 700;">@project.ProjectName</h5>
+                                @if (!string.IsNullOrEmpty(project.Technologies))
+                                {
+                                    <p class="mb-1"><strong>Technologies:</strong> @project.Technologies</p>
+                                }
+                                @if (!string.IsNullOrEmpty(project.ProjectUrl))
+                                {
+                                    <p class="mb-1"><strong>URL:</strong> <a href="@project.ProjectUrl" target="_blank">@project.ProjectUrl</a></p>
+                                }
+                                @if (project.StartDate.HasValue)
+                                {
+                                    <small class="text-muted">
+                                        @project.StartDate.Value.ToString("MMM yyyy") - @(project.EndDate?.ToString("MMM yyyy") ?? "Ongoing")
+                                    </small>
+                                }
+                                <p class="mb-0 mt-2">@project.Description</p>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No projects added yet.</p>
+                }
+                <a asp-controller="Projects" asp-action="Create" asp-route-resumeId="@Model.Id" class="btn btn-success">
+                    Add Project
+                </a>
+            </div>
+        </div>
+
+        <!-- Certifications Card -->
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="bi bi-award section-icon"></i> Certifications</h4>
+            </div>
+            <div class="card-body">
+                @if (Model.Certifications != null && Model.Certifications.Any())
+                {
+                    <div class="list-group mb-3">
+                        @foreach (var certification in Model.Certifications.OrderByDescending(c => c.DateAcquired))
+                        {
+                            <div class="list-group-item">
+                                <h5 class="mb-1" style="color: var(--primary-dark); font-weight: 700;">@certification.CertificationName</h5>
+                                <small class="text-muted">Acquired: @certification.DateAcquired.ToString("MMM yyyy")</small>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No certifications added yet.</p>
+                }
+                <a asp-controller="Certifications" asp-action="Create" asp-route-resumeId="@Model.Id" class="btn btn-success">
+                    Add Certification
+                </a>
+            </div>
+        </div>
+
+        <!-- Languages Card -->
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="bi bi-translate section-icon"></i> Languages</h4>
+            </div>
+            <div class="card-body">
+                @if (Model.Languages != null && Model.Languages.Any())
+                {
+                    <div class="list-group mb-3">
+                        @foreach (var language in Model.Languages)
+                        {
+                            <div class="list-group-item">
+                                <h5 class="mb-1" style="color: var(--primary-dark); font-weight: 700;">@language.LanguageName</h5>
+                                <small class="text-muted">Proficiency: @language.ProficiencyLevel</small>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No languages added yet.</p>
+                }
+                <a asp-controller="Languages" asp-action="Create" asp-route-resumeId="@Model.Id" class="btn btn-success">
+                    Add Language
+                </a>
+            </div>
+        </div>
+
+        <!-- Skills Card -->
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="bi bi-lightning-charge section-icon"></i> Skills</h4>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Skills (comma-separated)</label>
+                    <input name="SkillsInput" class="form-control" 
+                           value="@(Model.Skills != null && Model.Skills.Any() ? string.Join(", ", Model.Skills) : "")" 
+                           placeholder="C#, ASP.NET Core, SQL, JavaScript, React, etc." />
+                    <small class="form-text text-muted">Separate each skill with a comma</small>
+                </div>
+                @if (Model.Skills != null && Model.Skills.Any())
+                {
+                    <div class="mt-2">
+                        @foreach (var skill in Model.Skills)
+                        {
+                            <span class="skill-tag">@skill</span>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mb-4">
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            <div class="gap-2 d-flex">
+                <a asp-action="View" asp-route-id="@Model.Id" class="btn btn-info">Preview Resume</a>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

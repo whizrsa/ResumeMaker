@@ -1,0 +1,78 @@
+﻿@model ResumeMaker.Models.Experience
+
+@{
+    ViewData["Title"] = "Add Work Experience";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Add Work Experience</h2>
+        <a asp-controller="Home" asp-action="Edit" asp-route-resumeId="@Model.ResumeId" class="btn btn-secondary">
+            Back to Resume
+        </a>
+    </div>
+
+    <div class="card" style="border-radius: 10px; border: 2px solid #e00e0e0;">
+        <div class="card-body">
+            <form asp-controller="Experience" asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="ResumeId" />
+                
+                <div class="form-group">
+                    <label asp-for="JobTitle" class="form-label">Job Title</label>
+                    <input asp-for="JobTitle" class="form-control" placeholder="e.g., Software Developer" required/>
+                    <span asp-validation-for="JobTitle" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Company" class="form-label">Company Name</label>
+                    <input asp-for="Company" class="form-control" placeholder="e.g., Microsoft" required/>
+                    <span asp-validation-for="Company" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Location" class="form-label">Location</label>
+                    <input asp-for="Location" class="form-control" placeholder="e.g., New York, NY" required/>
+                    <span asp-validation-for="Location" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="StartDate">Start Date</label>
+                            <input asp-for="StartDate" type="date" class="form-control" required/>
+                            <span asp-validation-for="StartDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="EndDate">End Date</label>
+                            <input asp-for="EndDate" type="date" class="form-control" />
+                            <small class="form-text text-muted">Leave blank if current position</small>
+                            <span asp-validation-for="EndDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Description">Job Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="4" 
+                              placeholder="Describe your responsibilities and achievements..." required></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-controller="Home" asp-action="Edit" asp-route-resumeId="@Model.ResumeId" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-success">Save Experience</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
