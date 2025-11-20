@@ -1,0 +1,36 @@
+@model ResumeMaker.Models.Language
+
+@{
+    ViewData["Title"] = "Edit Language";
+}
+
+<div class="container">
+    <h3>Edit Language</h3>
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="ResumeId" />
+
+        <div class="mb-3">
+            <label class="form-label">Language</label>
+            <input class="form-control" asp-for="LanguageName" />
+            <span asp-validation-for="LanguageName" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Proficiency</label>
+            <select class="form-select" asp-for="ProficiencyLevel">
+                <option value="">Select level...</option>
+                <option>Native</option>
+                <option>Fluent</option>
+                <option>Advanced</option>
+                <option>Intermediate</option>
+                <option>Basic</option>
+            </select>
+            <span asp-validation-for="ProficiencyLevel" class="text-danger"></span>
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+            <a asp-controller="Home" asp-action="Edit" asp-route-resumeId="@Model.ResumeId" class="btn btn-secondary">Cancel</a>
+            <button class="btn btn-primary" type="submit">Save</button>
+        </div>
+    </form>
+</div>

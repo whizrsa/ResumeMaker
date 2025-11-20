@@ -8,14 +8,44 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0">Edit Resume</h2>
         <div class="gap-2 d-flex">
-            <a asp-action="View" asp-route-id="@Model.Id" class="btn btn-info">Preview</a>
+            <a asp-action="View" asp-route-id="@Model.Id" asp-route-theme="@Model.Theme" class="btn btn-info">Preview</a>
             <a asp-action="Index" class="btn btn-secondary">Back to List</a>
         </div>
     </div>
 
     <form asp-controller="Home" asp-action="Edit" method="post">
         <input type="hidden" asp-for="Id" />
-        
+
+        <!-- Theme selection -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h4><i class="bi bi-palette section-icon"></i> Resume Theme</h4>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" asp-for="Theme" id="editThemeMinimal" value="minimal" />
+                            <label class="form-check-label" for="editThemeMinimal">Minimal</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" asp-for="Theme" id="editThemeClassic" value="classic" />
+                            <label class="form-check-label" for="editThemeClassic">Classic</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" asp-for="Theme" id="editThemeModern" value="modern" />
+                            <label class="form-check-label" for="editThemeModern">Modern</label>
+                        </div>
+                    </div>
+                </div>
+                <small class="text-muted d-block mt-2">Change theme anytime. Affects preview styling only.</small>
+            </div>
+        </div>
+
         <!-- Personal Information Card -->
         <div class="card">
             <div class="card-header">
@@ -74,13 +104,22 @@
                     <div class="list-group mb-3">
                         @foreach (var experience in Model.Experiences.OrderByDescending(e => e.StartDate))
                         {
-                            <div class="list-group-item">
-                                <h5 class="mb-1" style="color: var(--primary-dark); font-weight: 700;">@experience.JobTitle</h5>
-                                <p class="mb-1"><strong>@experience.Company</strong> &middot; @experience.Location</p>
-                                <small class="text-muted">
-                                    @experience.StartDate.ToString("MMM yyyy") - @(experience.EndDate?.ToString("MMM yyyy") ?? "Present")
-                                </small>
-                                <p class="mb-0 mt-2">@experience.Description</p>
+                            <div class="list-group-item d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h5 class="mb-1" style="color: var(--primary-dark); font-weight: 700;">@experience.JobTitle</h5>
+                                    <p class="mb-1"><strong>@experience.Company</strong> &middot; @experience.Location</p>
+                                    <small class="text-muted">
+                                        @experience.StartDate.ToString("MMM yyyy") - @(experience.EndDate?.ToString("MMM yyyy") ?? "Present")
+                                    </small>
+                                    <p class="mb-0 mt-2">@experience.Description</p>
+                                </div>
+                                <div class="d-flex flex-column gap-1">
+                                    <a asp-controller="Experience" asp-action="Edit" asp-route-id="@experience.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                                    <form asp-controller="Experience" asp-action="Delete" method="post" onsubmit="return confirm('Delete this experience?');">
+                                        <input type="hidden" name="id" value="@experience.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </div>
                             </div>
                         }
                     </div>
@@ -106,12 +145,21 @@
                     <div class="list-group mb-3">
                         @foreach (var education in Model.EducationHistory.OrderByDescending(e => e.EndDate))
                         {
-                            <div class="list-group-item">
-                                <h5 class="mb-1" style="color: var(--primary-dark); font-weight: 700;">@education.Degree</h5>
-                                <p class="mb-1"><strong>@education.Institution</strong></p>
-                                <small class="text-muted">
-                                    @education.StartDate.ToString("MMM yyyy") - @education.EndDate.ToString("MMM yyyy")
-                                </small>
+                            <div class="list-group-item d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h5 class="mb-1" style="color: var(--primary-dark); font-weight: 700;">@education.Degree</h5>
+                                    <p class="mb-1"><strong>@education.Institution</strong></p>
+                                    <small class="text-muted">
+                                        @education.StartDate.ToString("MMM yyyy") - @education.EndDate.ToString("MMM yyyy")
+                                    </small>
+                                </div>
+                                <div class="d-flex flex-column gap-1">
+                                    <a asp-controller="Education" asp-action="Edit" asp-route-id="@education.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                                    <form asp-controller="Education" asp-action="Delete" method="post" onsubmit="return confirm('Delete this education?');">
+                                        <input type="hidden" name="id" value="@education.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </div>
                             </div>
                         }
                     </div>
@@ -137,23 +185,32 @@
                     <div class="list-group mb-3">
                         @foreach (var project in Model.Projects.OrderByDescending(p => p.StartDate))
                         {
-                            <div class="list-group-item">
-                                <h5 class="mb-1" style="color: var(--primary-dark); font-weight: 700;">@project.ProjectName</h5>
-                                @if (!string.IsNullOrEmpty(project.Technologies))
-                                {
-                                    <p class="mb-1"><strong>Technologies:</strong> @project.Technologies</p>
-                                }
-                                @if (!string.IsNullOrEmpty(project.ProjectUrl))
-                                {
-                                    <p class="mb-1"><strong>URL:</strong> <a href="@project.ProjectUrl" target="_blank">@project.ProjectUrl</a></p>
-                                }
-                                @if (project.StartDate.HasValue)
-                                {
-                                    <small class="text-muted">
-                                        @project.StartDate.Value.ToString("MMM yyyy") - @(project.EndDate?.ToString("MMM yyyy") ?? "Ongoing")
-                                    </small>
-                                }
-                                <p class="mb-0 mt-2">@project.Description</p>
+                            <div class="list-group-item d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h5 class="mb-1" style="color: var(--primary-dark); font-weight: 700;">@project.ProjectName</h5>
+                                    @if (!string.IsNullOrEmpty(project.Technologies))
+                                    {
+                                        <p class="mb-1"><strong>Technologies:</strong> @project.Technologies</p>
+                                    }
+                                    @if (!string.IsNullOrEmpty(project.ProjectUrl))
+                                    {
+                                        <p class="mb-1"><strong>URL:</strong> <a href="@project.ProjectUrl" target="_blank">@project.ProjectUrl</a></p>
+                                    }
+                                    @if (project.StartDate.HasValue)
+                                    {
+                                        <small class="text-muted">
+                                            @project.StartDate.Value.ToString("MMM yyyy") - @(project.EndDate?.ToString("MMM yyyy") ?? "Ongoing")
+                                        </small>
+                                    }
+                                    <p class="mb-0 mt-2">@project.Description</p>
+                                </div>
+                                <div class="d-flex flex-column gap-1">
+                                    <a asp-controller="Projects" asp-action="Edit" asp-route-id="@project.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                                    <form asp-controller="Projects" asp-action="Delete" method="post" onsubmit="return confirm('Delete this project?');">
+                                        <input type="hidden" name="id" value="@project.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </div>
                             </div>
                         }
                     </div>
@@ -179,9 +236,18 @@
                     <div class="list-group mb-3">
                         @foreach (var certification in Model.Certifications.OrderByDescending(c => c.DateAcquired))
                         {
-                            <div class="list-group-item">
-                                <h5 class="mb-1" style="color: var(--primary-dark); font-weight: 700;">@certification.CertificationName</h5>
-                                <small class="text-muted">Acquired: @certification.DateAcquired.ToString("MMM yyyy")</small>
+                            <div class="list-group-item d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h5 class="mb-1" style="color: var(--primary-dark); font-weight: 700;">@certification.CertificationName</h5>
+                                    <small class="text-muted">Acquired: @certification.DateAcquired.ToString("MMM yyyy")</small>
+                                </div>
+                                <div class="d-flex flex-column gap-1">
+                                    <a asp-controller="Certifications" asp-action="Edit" asp-route-id="@certification.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                                    <form asp-controller="Certifications" asp-action="Delete" method="post" onsubmit="return confirm('Delete this certification?');">
+                                        <input type="hidden" name="id" value="@certification.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </div>
                             </div>
                         }
                     </div>
@@ -207,9 +273,18 @@
                     <div class="list-group mb-3">
                         @foreach (var language in Model.Languages)
                         {
-                            <div class="list-group-item">
-                                <h5 class="mb-1" style="color: var(--primary-dark); font-weight: 700;">@language.LanguageName</h5>
-                                <small class="text-muted">Proficiency: @language.ProficiencyLevel</small>
+                            <div class="list-group-item d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h5 class="mb-1" style="color: var(--primary-dark); font-weight: 700;">@language.LanguageName</h5>
+                                    <small class="text-muted">Proficiency: @language.ProficiencyLevel</small>
+                                </div>
+                                <div class="d-flex flex-column gap-1">
+                                    <a asp-controller="Languages" asp-action="Edit" asp-route-id="@language.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                                    <form asp-controller="Languages" asp-action="Delete" method="post" onsubmit="return confirm('Delete this language?');">
+                                        <input type="hidden" name="id" value="@language.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </div>
                             </div>
                         }
                     </div>
@@ -252,7 +327,7 @@
         <div class="d-flex justify-content-between mb-4">
             <a asp-action="Index" class="btn btn-secondary">Cancel</a>
             <div class="gap-2 d-flex">
-                <a asp-action="View" asp-route-id="@Model.Id" class="btn btn-info">Preview Resume</a>
+                <a asp-action="View" asp-route-id="@Model.Id" class="btn	btn-info">Preview Resume</a>
                 <button type="submit" class="btn btn-primary">Save Changes</button>
             </div>
         </div>

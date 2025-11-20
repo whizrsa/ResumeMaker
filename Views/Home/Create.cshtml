@@ -25,7 +25,35 @@
 
     <form asp-controller="Home" asp-action="Create" method="post" id="resumeForm">
         @Html.AntiForgeryToken()
-        
+
+        <!-- Theme selection -->
+        <div class="card mb-3">
+            <div class="card-header"><h4>Select Resume Theme</h4></div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" asp-for="Theme" id="themeMinimal" value="minimal" checked />
+                            <label class="form-check-label" for="themeMinimal">Minimal</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" asp-for="Theme" id="themeClassic" value="classic" />
+                            <label class="form-check-label" for="themeClassic">Classic</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" asp-for="Theme" id="themeModern" value="modern" />
+                            <label class="form-check-label" for="themeModern">Modern</label>
+                        </div>
+                    </div>
+                </div>
+                <small class="text-muted d-block mt-2">Choose a theme. You can change it anytime while editing.</small>
+            </div>
+        </div>
+
         <!-- Personal Information Card -->
         <div class="card">
             <div class="card-header">

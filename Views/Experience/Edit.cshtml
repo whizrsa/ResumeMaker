@@ -1,0 +1,49 @@
+@model ResumeMaker.Models.Experience
+
+@{
+    ViewData["Title"] = "Edit Experience";
+}
+
+<div class="container">
+    <h3>Edit Experience</h3>
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="ResumeId" />
+
+        <div class="mb-3">
+            <label class="form-label">Job Title</label>
+            <input class="form-control" asp-for="JobTitle" />
+            <span asp-validation-for="JobTitle" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Company</label>
+            <input class="form-control" asp-for="Company" />
+            <span asp-validation-for="Company" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Location</label>
+            <input class="form-control" asp-for="Location" />
+            <span asp-validation-for="Location" class="text-danger"></span>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Start Date</label>
+                <input class="form-control" asp-for="StartDate" type="date" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">End Date</label>
+                <input class="form-control" asp-for="EndDate" type="date" />
+            </div>
+        </div>
+        <div class="mb-3 mt-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" asp-for="Description" rows="3"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a asp-controller="Home" asp-action="Edit" asp-route-resumeId="@Model.ResumeId" class="btn btn-secondary">Cancel</a>
+            <button class="btn btn-primary" type="submit">Save</button>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,39 @@
+@model ResumeMaker.Models.Education
+
+@{
+    ViewData["Title"] = "Edit Education";
+}
+
+<div class="container">
+    <h3>Edit Education</h3>
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="ResumeId" />
+
+        <div class="mb-3">
+            <label class="form-label">Institution</label>
+            <input class="form-control" asp-for="Institution" />
+            <span asp-validation-for="Institution" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Degree</label>
+            <input class="form-control" asp-for="Degree" />
+            <span asp-validation-for="Degree" class="text-danger"></span>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Start Date</label>
+                <input class="form-control" asp-for="StartDate" type="date" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">End Date</label>
+                <input class="form-control" asp-for="EndDate" type="date" />
+            </div>
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+            <a asp-controller="Home" asp-action="Edit" asp-route-resumeId="@Model.ResumeId" class="btn btn-secondary">Cancel</a>
+            <button class="btn btn-primary" type="submit">Save</button>
+        </div>
+    </form>
+</div>

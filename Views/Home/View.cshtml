@@ -41,6 +41,20 @@
             </section>
         }
 
+        <!-- Skills (Moved to middle after summary) -->
+        @if (Model.Skills != null && Model.Skills.Any())
+        {
+            <section class="resume-section skills-section" aria-label="Skills">
+                <h2>Core Skills</h2>
+                <div class="skills-container">
+                @foreach (var skill in Model.Skills)
+                {
+                    <span class="skill-tag">@skill</span>
+                }
+                </div>
+            </section>
+        }
+
         <!-- Work Experience -->
         @if (Model.Experiences != null && Model.Experiences.Any())
         {
@@ -51,10 +65,9 @@
                 {
                     <li class="resume-item" itemscope itemtype="https://schema.org/JobPosting">
                         <div class="resume-item-header">
-                            <div>
-                                <span class="resume-item-title" itemprop="title">@experience.JobTitle</span>
-                                <span class="resume-item-subtitle" itemprop="hiringOrganization">@experience.Company</span>
-                                <span class="resume-item-location" itemprop="jobLocation">@experience.Location</span>
+                            <div class="resume-item-info">
+                                <div class="resume-item-title" itemprop="title">@experience.JobTitle</div>
+                                <div class="resume-item-subtitle" itemprop="hiringOrganization">@experience.Company • @experience.Location</div>
                             </div>
                             <span class="resume-item-date">
                                 <time itemprop="datePosted" datetime="@experience.StartDate.ToString("yyyy-MM-dd")">@experience.StartDate.ToString("MMM yyyy")</time>
@@ -62,42 +75,7 @@
                                 <time itemprop="validThrough" datetime="@(experience.EndDate?.ToString("yyyy-MM-dd") ?? "")">@(experience.EndDate?.ToString("MMM yyyy") ?? "Present")</time>
                             </span>
                         </div>
-                        <p itemprop="description">@experience.Description</p>
-                    </li>
-                }
-                </ul>
-            </section>
-        }
-
-        <!-- Projects -->
-        @if (Model.Projects != null && Model.Projects.Any())
-        {
-            <section class="resume-section" aria-label="Projects">
-                <h2>Projects</h2>
-                <ul class="resume-list">
-                @foreach (var project in Model.Projects.OrderByDescending(p => p.StartDate))
-                {
-                    <li class="resume-item" itemscope itemtype="https://schema.org/CreativeWork">
-                        <div class="resume-item-header">
-                            <span class="resume-item-title" itemprop="name">@project.ProjectName</span>
-                            @if (!string.IsNullOrEmpty(project.Technologies))
-                            {
-                                <span class="resume-item-subtitle">Technologies: @project.Technologies</span>
-                            }
-                            @if (project.StartDate.HasValue)
-                            {
-                                <span class="resume-item-date">
-                                    <time itemprop="dateCreated" datetime="@project.StartDate.Value.ToString("yyyy-MM-dd")">@project.StartDate.Value.ToString("MMM yyyy")</time>
-                                    -
-                                    <time itemprop="dateModified" datetime="@(project.EndDate?.ToString("yyyy-MM-dd") ?? "")">@(project.EndDate?.ToString("MMM yyyy") ?? "Ongoing")</time>
-                                </span>
-                            }
-                        </div>
-                        <p itemprop="description">@project.Description</p>
-                        @if (!string.IsNullOrEmpty(project.ProjectUrl))
-                        {
-                            <p><strong>Project URL:</strong> <a href="@project.ProjectUrl" target="_blank" itemprop="url">@project.ProjectUrl</a></p>
-                        }
+                        <p class="resume-item-description" itemprop="description">@experience.Description</p>
                     </li>
                 }
                 </ul>
@@ -114,14 +92,53 @@
                 {
                     <li class="resume-item" itemscope itemtype="https://schema.org/EducationalOrganization">
                         <div class="resume-item-header">
-                            <span class="resume-item-title" itemprop="degree">@education.Degree</span>
-                            <span class="resume-item-subtitle" itemprop="name">@education.Institution</span>
+                            <div class="resume-item-info">
+                                <div class="resume-item-title" itemprop="degree">@education.Degree</div>
+                                <div class="resume-item-subtitle" itemprop="name">@education.Institution</div>
+                            </div>
                             <span class="resume-item-date">
                                 <time itemprop="startDate" datetime="@education.StartDate.ToString("yyyy-MM-dd")">@education.StartDate.ToString("MMM yyyy")</time>
                                 -
                                 <time itemprop="endDate" datetime="@education.EndDate.ToString("yyyy-MM-dd")">@education.EndDate.ToString("MMM yyyy")</time>
                             </span>
                         </div>
+                    </li>
+                }
+                </ul>
+            </section>
+        }
+
+        <!-- Projects -->
+        @if (Model.Projects != null && Model.Projects.Any())
+        {
+            <section class="resume-section" aria-label="Projects">
+                <h2>Projects</h2>
+                <ul class="resume-list">
+                @foreach (var project in Model.Projects.OrderByDescending(p => p.StartDate))
+                {
+                    <li class="resume-item" itemscope itemtype="https://schema.org/CreativeWork">
+                        <div class="resume-item-header">
+                            <div class="resume-item-info">
+                                <div class="resume-item-title" itemprop="name">@project.ProjectName</div>
+                                @if (!string.IsNullOrEmpty(project.Technologies))
+                                {
+                                    <div class="resume-item-subtitle">@project.Technologies</div>
+                                }
+                            </div>
+                            @if (project.StartDate.HasValue)
+                            {
+                                <span class="resume-item-date">
+                                    <time itemprop="dateCreated" datetime="@project.StartDate.Value.ToString("yyyy-MM-dd")">@project.StartDate.Value.ToString("MMM yyyy")</time>
+                                    -
+                                    <time itemprop="dateModified" datetime="@(project.EndDate?.ToString("yyyy-MM-dd") ?? string.Empty)">@(project.EndDate?.ToString("MMM yyyy") ?? "Ongoing")</time>
+                                </span>
+                            }
+                        </div>
+                        <p class="resume-item-description" itemprop="description">@project.Description</p>
+                        @if (!string.IsNullOrEmpty(project.ProjectUrl))
+                        {
+                            <p class="project-url"><strong>URL:</strong> <a href="@project.ProjectUrl" target="_blank" itemprop="url">@project.ProjectUrl</a></p>
+                        }
                     </li>
                 }
                 </ul>
@@ -138,7 +155,7 @@
                 {
                     <li class="resume-item">
                         <div class="resume-item-header">
-                            <span class="resume-item-title">@certification.CertificationName</span>
+                            <div class="resume-item-title">@certification.CertificationName</div>
                             <span class="resume-item-date">
                                 <time datetime="@certification.DateAcquired.ToString("yyyy-MM-dd")">@certification.DateAcquired.ToString("MMM yyyy")</time>
                             </span>
@@ -154,27 +171,13 @@
         {
             <section class="resume-section" aria-label="Languages">
                 <h2>Languages</h2>
-                <ul class="resume-list">
+                <ul class="resume-list language-list">
                 @foreach (var language in Model.Languages)
                 {
-                    <li class="resume-item">
+                    <li class="resume-item language-item">
                         <span class="resume-item-title">@language.LanguageName</span>
-                        <span class="text-muted">@language.ProficiencyLevel</span>
+                        <span class="language-level">@language.ProficiencyLevel</span>
                     </li>
-                }
-                </ul>
-            </section>
-        }
-
-        <!-- Skills -->
-        @if (Model.Skills != null && Model.Skills.Any())
-        {
-            <section class="resume-section" aria-label="Skills">
-                <h2>Skills</h2>
-                <ul class="resume-list resume-skills">
-                @foreach (var skill in Model.Skills)
-                {
-                    <li class="skill-tag">@skill</li>
                 }
                 </ul>
             </section>
@@ -183,42 +186,363 @@
 </div>
 
 <style>
+    /* Base styles */
     .resume-list { list-style: none; margin: 0; padding: 0; }
-    .resume-list > li { margin-bottom: 2rem; page-break-inside: avoid; }
-    .resume-skills { display: flex; flex-wrap: wrap; gap: .5rem; }
-    .skill-tag { border-radius: 9999px; padding: .35rem .75rem; font-weight:600; }
+    .resume-list > li { margin-bottom: 1.5rem; page-break-inside: avoid; }
+    
+    .resume-preview { 
+        background: #fff; 
+        padding: 3rem; 
+        border-radius: 8px; 
+        box-shadow: 0 4px 20px rgba(0,0,0,.08);
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .resume-header { 
+        text-align: center;
+        border-bottom: 3px solid #e5e7eb; 
+        margin-bottom: 2rem; 
+        padding-bottom: 1.5rem; 
+    }
+    
+    .resume-header h1 { 
+        margin: 0 0 1rem 0; 
+        font-weight: 700;
+        font-size: 2.5rem;
+        line-height: 1.2;
+    }
+    
+    .resume-contact { 
+        display: flex; 
+        flex-wrap: wrap; 
+        gap: 1.5rem; 
+        justify-content: center;
+        font-size: 0.95rem;
+    }
+    
+    .resume-section { 
+        margin-bottom: 2rem; 
+        page-break-inside: avoid;
+    }
+    
+    .resume-section h2 { 
+        margin-bottom: 1rem;
+        font-size: 1.4rem;
+        font-weight: 700;
+    }
+    
+    .resume-section p {
+        line-height: 1.6;
+        margin-bottom: 0.5rem;
+    }
+    
+    .resume-item-header { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: flex-start;
+        gap: 1rem; 
+        margin-bottom: 0.75rem;
+    }
+    
+    .resume-item-info {
+        flex: 1;
+    }
+    
+    .resume-item-title { 
+        font-weight: 700; 
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .resume-item-subtitle { 
+        font-size: 0.95rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .resume-item-date {
+        white-space: nowrap;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .resume-item-description {
+        line-height: 1.6;
+        margin: 0;
+    }
+    
+    .project-url {
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
 
-    /* Theme base */
-    .resume-preview { background: #fff; padding: 2rem; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,.06); }
-    .resume-header { border-bottom: 1px solid #e5e7eb; margin-bottom: 1rem; padding-bottom: .5rem; }
-    .resume-header h1 { margin: 0 0 .5rem 0; font-weight: 800; }
-    .resume-contact { display: flex; flex-wrap: wrap; gap: 1rem; color: #6b7280; }
-    .resume-item-header { display:flex; justify-content: space-between; gap: 1rem; }
+    /* Skills section styles */
+    .skills-section {
+        background: #f9fafb;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2.5rem;
+    }
+    
+    .skills-container { 
+        display: flex; 
+        flex-wrap: wrap; 
+        gap: 0.75rem;
+        margin-top: 0.75rem;
+    }
+    
+    .skill-tag { 
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
 
-    /* Minimal theme */
-    .theme-minimal .resume-section h2 { font-size: 1.1rem; font-weight: 800; color: #111827; text-transform: uppercase; letter-spacing: .06em; }
-    .theme-minimal .resume-item-title { font-weight: 700; color: #111827; }
-    .theme-minimal .resume-item-subtitle, .theme-minimal .resume-item-date { color: #6b7280; }
-    .theme-minimal .skill-tag { background: #f3f4f6; color: #111827; }
+    /* Language list styles */
+    .language-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
 
-    /* Classic theme */
-    .theme-classic .resume-section h2 { font-size: 1.25rem; font-weight: 800; color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: .25rem; }
-    .theme-classic .resume-item-title { font-weight: 800; color: #111827; }
-    .theme-classic .resume-item-subtitle, .theme-classic .resume-item-date { color: #374151; font-style: italic; }
-    .theme-classic .skill-tag { background: #e5e7eb; color: #111827; }
+    .language-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0 !important;
+    }
 
-    /* Modern theme */
-    .theme-modern .resume-section h2 { font-size: 1.25rem; font-weight: 800; color: #4f46e5; }
-    .theme-modern .resume-item-title { font-weight: 800; color: #111827; }
-    .theme-modern .resume-item-subtitle, .theme-modern .resume-item-date { color: #6b7280; }
-    .theme-modern .skill-tag { background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; }
+    .language-level {
+        font-size: 0.9rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+    }
 
-    @media print {
+    /* ========== MINIMAL THEME ========== */
+    .theme-minimal .resume-header {
+        border-bottom: 2px solid #111827;
+    }
+
+    .theme-minimal .resume-header h1 { 
+        color: #111827;
+        letter-spacing: -0.025em;
+    }
+    
+    .theme-minimal .resume-contact { 
+        color: #4b5563; 
+    }
+    
+    .theme-minimal .resume-section h2 { 
+        color: #111827; 
+        text-transform: uppercase; 
+        letter-spacing: 0.1em; 
+        font-size: 1.1rem;
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 0.5rem;
+    }
+    
+    .theme-minimal .resume-item-title { 
+        color: #111827; 
+    }
+    
+    .theme-minimal .resume-item-subtitle, 
+    .theme-minimal .resume-item-date { 
+        color: #6b7280; 
+    }
+    
+    .theme-minimal .skill-tag { 
+        background: #111827; 
+        color: #fff;
+    }
+
+    .theme-minimal .skills-section {
+        background: #f3f4f6;
+        border-left: 4px solid #111827;
+    }
+
+    .theme-minimal .language-level {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    /* ========== CLASSIC THEME ========== */
+    .theme-classic .resume-header {
+        border-bottom: 3px double #1f2937;
+    }
+
+    .theme-classic .resume-header h1 { 
+        color: #1f2937;
+        font-family: 'Georgia', serif;
+        letter-spacing: 0.025em;
+    }
+    
+    .theme-classic .resume-contact { 
+        color: #374151;
+        font-style: italic;
+    }
+    
+    .theme-classic .resume-section h2 { 
+        color: #1f2937; 
+        font-family: 'Georgia', serif;
+        border-bottom: 2px solid #1f2937;
+        padding-bottom: 0.5rem;
+    }
+    
+    .theme-classic .resume-item-title { 
+        color: #111827;
+        font-family: 'Georgia', serif; 
+    }
+    
+    .theme-classic .resume-item-subtitle, 
+    .theme-classic .resume-item-date { 
+        color: #4b5563; 
+    }
+    
+    .theme-classic .skill-tag { 
+        background: #1f2937; 
+        color: #f9fafb;
+        border: 1px solid #374151;
+    }
+
+    .theme-classic .skills-section {
+        background: #f9fafb;
+        border: 2px solid #e5e7eb;
+    }
+
+    .theme-classic .language-level {
+        background: #e5e7eb;
+        color: #1f2937;
+        font-style: italic;
+    }
+
+    /* ========== MODERN THEME ========== */
+    .theme-modern .resume-header {
+        border-bottom: 4px solid #4f46e5;
+        background: linear-gradient(135deg, #eef2ff 0%, #ffffff 100%);
+        margin: -3rem -3rem 2rem -3rem;
+        padding: 3rem 3rem 2rem 3rem;
+        border-radius: 8px 8px 0 0;
+    }
+
+    .theme-modern .resume-header h1 { 
+        color: #1e1b4b;
+        font-weight: 800;
+    }
+    
+    .theme-modern .resume-contact { 
+        color: #4338ca; 
+    }
+    
+    .theme-modern .resume-section h2 { 
+        color: #4f46e5; 
+        font-weight: 800;
+        position: relative;
+        padding-left: 1rem;
+    }
+
+    .theme-modern .resume-section h2::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 60%;
+        background: linear-gradient(180deg, #4f46e5 0%, #818cf8 100%);
+        border-radius: 2px;
+    }
+    
+    .theme-modern .resume-item-title { 
+        color: #1e1b4b; 
+    }
+    
+    .theme-modern .resume-item-subtitle, 
+    .theme-modern .resume-item-date { 
+        color: #6366f1; 
+    }
+    
+    .theme-modern .skill-tag { 
+        background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+        color: #fff;
+        box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+    }
+
+    .theme-modern .skill-tag:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
+    }
+
+    .theme-modern .skills-section {
+        background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+        border: 2px solid #c7d2fe;
+        border-left: 4px solid #4f46e5;
+    }
+
+    .theme-modern .language-level {
+        background: #eef2ff;
+        color: #4338ca;
+        border: 1px solid #c7d2fe;
+    }
+
+    .theme-modern .resume-item {
+        position: relative;
+        padding-left: 1rem;
+        border-left: 2px solid #e0e7ff;
+        transition: border-color 0.3s ease;
+    }
+
+    .theme-modern .resume-item:hover {
+        border-left-color: #4f46e5;
+    }
+
+    /* Print styles */
+    @@media print {
         .no-print { display: none !important; }
         body { background: white !important; }
-        .resume-preview { box-shadow: none !important; margin: 0 !important; padding: 0 !important; }
+        .resume-preview { 
+            box-shadow: none !important; 
+            margin: 0 !important; 
+            padding: 1rem !important;
+            max-width: 100% !important;
+        }
         .container { max-width: 100% !important; padding: 0 !important; }
         .body-section { padding: 0 !important; }
         header, footer { display: none !important; }
+        .theme-modern .resume-header {
+            margin: 0 !important;
+            padding-bottom: 1.5rem !important;
+        }
+        .skill-tag {
+            break-inside: avoid;
+        }
+        .resume-section {
+            break-inside: avoid;
+        }
+    }
+
+    /* Responsive styles */
+    @@media (max-width: 768px) {
+        .resume-preview {
+            padding: 1.5rem;
+        }
+        
+        .resume-header h1 {
+            font-size: 2rem;
+        }
+        
+        .resume-item-header {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .resume-item-date {
+            align-self: flex-start;
+        }
+        
+        .language-list {
+            grid-template-columns: 1fr;
+        }
     }
 </style>

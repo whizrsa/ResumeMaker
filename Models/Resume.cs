@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace ResumeMaker.Models
 {
@@ -12,6 +14,7 @@ namespace ResumeMaker.Models
             Projects = new List<Project>();
             Languages = new List<Language>();
             Skills = new List<string>();
+            Theme = "minimal"; // default theme
         }
 
         public int Id { get; set; }
@@ -41,6 +44,17 @@ namespace ResumeMaker.Models
         [Required]
         [Display(Name = "Summary")]
         public string Summary { get; set; }
+
+        [MaxLength(20)]
+        [Display(Name = "Resume Theme")]
+        public string Theme { get; set; }
+
+        // Foreign key to ApplicationUser - automatically set by controller
+        [BindNever]
+        public string UserId { get; set; } = string.Empty;
+
+        [ValidateNever]
+        public ApplicationUser? User { get; set; }
         
         public List<Experience> Experiences { get; set; }
         public List<Education> EducationHistory { get; set; }

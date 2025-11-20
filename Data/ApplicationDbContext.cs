@@ -29,6 +29,13 @@ namespace ResumeMaker.Data
 
             builder.Entity<IdentityRole>().HasData(user);//adding user role
 
+            // Configure Resume to ApplicationUser relationship
+            builder.Entity<Resume>()
+                .HasOne(r => r.User)
+                .WithMany()
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // Configure relationships
             builder.Entity<Experience>()
                 .HasOne(e => e.Resume)

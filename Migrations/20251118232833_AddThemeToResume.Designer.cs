@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ResumeMaker.Data;
 
@@ -11,9 +12,11 @@ using ResumeMaker.Data;
 namespace ResumeMaker.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251118232833_AddThemeToResume")]
+    partial class AddThemeToResume
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,7 +54,7 @@ namespace ResumeMaker.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "18d8c1e8-550f-4926-ad11-6f5bff53d68d",
+                            Id = "47460946-063e-4072-9fe3-1e86ce596435",
                             Name = "user",
                             NormalizedName = "user"
                         });
@@ -463,13 +466,7 @@ namespace ResumeMaker.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Resumes");
                 });
@@ -578,17 +575,6 @@ namespace ResumeMaker.Migrations
                         .IsRequired();
 
                     b.Navigation("Resume");
-                });
-
-            modelBuilder.Entity("ResumeMaker.Models.Resume", b =>
-                {
-                    b.HasOne("ResumeMaker.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ResumeMaker.Models.Resume", b =>

@@ -36,5 +36,58 @@ namespace ResumeMaker.Controllers
 
             return View(experience);
         }
+
+        // GET: Experience/Edit/5
+        public IActionResult Edit(int id)
+        {
+            var exp = _context.Experiences.Find(id);
+            if (exp == null)
+            {
+                return NotFound();
+            }
+            return View(exp);
+        }
+
+        // POST: Experience/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Experience model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var exp = _context.Experiences.Find(model.Id);
+            if (exp == null)
+            {
+                return NotFound();
+            }
+
+            exp.JobTitle = model.JobTitle;
+            exp.Company = model.Company;
+            exp.Location = model.Location;
+            exp.StartDate = model.StartDate;
+            exp.EndDate = model.EndDate;
+            exp.Description = model.Description;
+            _context.SaveChanges();
+            return RedirectToAction("Edit", "Home", new { resumeId = exp.ResumeId });
+        }
+
+        // POST: Experience/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(int id)
+        {
+            var exp = _context.Experiences.Find(id);
+            if (exp == null)
+            {
+                return NotFound();
+            }
+            var resumeId = exp.ResumeId;
+            _context.Experiences.Remove(exp);
+            _context.SaveChanges();
+            return RedirectToAction("Edit", "Home", new { resumeId });
+        }
     }
 }

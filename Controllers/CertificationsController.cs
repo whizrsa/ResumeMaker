@@ -37,5 +37,37 @@ namespace ResumeMaker.Controllers
 
             return View(certification);
         }
+
+        public IActionResult Edit(int id)
+        {
+            var cert = _context.Certifications.Find(id);
+            if (cert == null) return NotFound();
+            return View(cert);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Certification model)
+        {
+            if (!ModelState.IsValid) return View(model);
+            var cert = _context.Certifications.Find(model.Id);
+            if (cert == null) return NotFound();
+            cert.CertificationName = model.CertificationName;
+            cert.DateAcquired = model.DateAcquired;
+            _context.SaveChanges();
+            return RedirectToAction("Edit", "Home", new { resumeId = cert.ResumeId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(int id)
+        {
+            var cert = _context.Certifications.Find(id);
+            if (cert == null) return NotFound();
+            var resumeId = cert.ResumeId;
+            _context.Certifications.Remove(cert);
+            _context.SaveChanges();
+            return RedirectToAction("Edit", "Home", new { resumeId });
+        }
     }
 }

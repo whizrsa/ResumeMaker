@@ -1,0 +1,47 @@
+@model ResumeMaker.Models.Project
+
+@{
+    ViewData["Title"] = "Edit Project";
+}
+
+<div class="container">
+    <h3>Edit Project</h3>
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="ResumeId" />
+
+        <div class="mb-3">
+            <label class="form-label">Project Name</label>
+            <input class="form-control" asp-for="ProjectName" />
+            <span asp-validation-for="ProjectName" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" asp-for="Description" rows="3"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Technologies</label>
+            <input class="form-control" asp-for="Technologies" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Project URL</label>
+            <input class="form-control" asp-for="ProjectUrl" />
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Start Date</label>
+                <input class="form-control" asp-for="StartDate" type="date" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">End Date</label>
+                <input class="form-control" asp-for="EndDate" type="date" />
+            </div>
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+            <a asp-controller="Home" asp-action="Edit" asp-route-resumeId="@Model.ResumeId" class="btn btn-secondary">Cancel</a>
+            <button class="btn btn-primary" type="submit">Save</button>
+        </div>
+    </form>
+</div>
